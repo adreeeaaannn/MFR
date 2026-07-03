@@ -354,6 +354,14 @@
     .history-feelings-grid {
       display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-top: 10px;
     }
+    .history-activities { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .ha-row {
+      display: grid; grid-template-columns: 76px 1fr auto; gap: 8px; align-items: center;
+      background: var(--surface); border-radius: 6px; padding: 6px 8px;
+    }
+    .ha-label { font-size: 11px; font-weight: 700; color: var(--text); }
+    .ha-desc  { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ha-dur   { font-size: 12px; font-weight: 700; color: var(--accent); }
     .hf-cell {
       background: var(--surface); border-radius: 6px; padding: 4px 2px;
       display: flex; flex-direction: column; align-items: center; gap: 2px;
@@ -1007,7 +1015,7 @@
   </div>
 
   <div style="text-align:center;margin-top:30px;font-size:12px;color:var(--muted)">
-    MFR v1.1 · Data stored locally on this device
+    MFR v1.2 · Data stored locally on this device
   </div>
 </div>
 
@@ -1513,7 +1521,17 @@ function loadDrinkState() {
 // ─────────────────────────────────────────────
 //  ACTIVITIES
 // ─────────────────────────────────────────────
-const ACTIVITY_COUNT = 6;
+const ACTIVITY_COUNT  = 6;
+const ACTIVITY_LABELS = ['Work', 'Exercise', 'Reading', 'Housework', 'DIY', 'Other'];
+
+// format minutes as "45m" / "1.5h" / "8h"
+function fmtDur(mins) {
+  const m = parseInt(mins) || 0;
+  if (!m) return '';
+  if (m < 60) return m + 'm';
+  const h = m / 60;
+  return (h % 1 === 0 ? h : h.toFixed(1)) + 'h';
+}
 
 function updateActivitiesSubtitle() {
   if (!state.activities) state.activities = [];
@@ -1523,9 +1541,8 @@ function updateActivitiesSubtitle() {
       duration: document.getElementById('act-dur-' + i)?.value || ''
     };
   }
-  const LABELS = ['Work', 'Exercise', 'Reading', 'Housework', 'DIY', 'Other'];
   const active = state.activities
-    .map((a, i) => a.duration ? LABELS[i] : null)
+    .map((a, i) => a.duration ? ACTIVITY_LABELS[i] : null)
     .filter(Boolean);
   const sub = document.getElementById('acc-activities-sub');
   if (sub) sub.textContent = active.length > 0 ? active.join(' · ') : 'Tap to record';
@@ -1800,6 +1817,20 @@ function renderHistory() {
           </div>`).join('')}
       </div>` : '';
 
+    // Activities — show any with a duration or description
+    const acts = (e.activities || [])
+      .map((a, i) => ({ ...a, label: ACTIVITY_LABELS[i] }))
+      .filter(a => a && (a.duration || (a.desc && a.desc.trim())));
+    const activitiesHTML = acts.length ? `
+      <div class="history-activities">
+        ${acts.map(a => `
+          <div class="ha-row">
+            <span class="ha-label">${a.label}</span>
+            <span class="ha-desc">${a.desc ? a.desc : ''}</span>
+            <span class="ha-dur">${a.duration ? fmtDur(a.duration) : '✓'}</span>
+          </div>`).join('')}
+      </div>` : '';
+
     const sleepHrs = e.sleepHours || e.sleep || 0;
     const sleepColor = sleepHrs >= 7 ? 'var(--good)' : sleepHrs >= 5 ? 'var(--warn)' : 'var(--bad)';
     const bedLabel  = e.sleepBedtime  ? e.sleepBedtime  : '—';
@@ -1822,6 +1853,7 @@ function renderHistory() {
             <span class="hlbl">Meds</span>
           </div>
         </div>
+        ${activitiesHTML}
         ${feelingsHTML}
         ${e.notes ? `<div class="history-notes-text">"${e.notes.substring(0,100)}${e.notes.length > 100 ? '…' : ''}"</div>` : ''}
       </div>`;
@@ -1880,11 +1912,40 @@ function renderInsights() {
     </div>`;
   }).join('');
 
+  // Activities — total time per activity across the last 7 days
+  const actTotals = ACTIVITY_LABELS.map((label, i) => {
+    let mins = 0, days = 0;
+    entries.forEach(e => {
+      const a = (e.activities || [])[i];
+      if (a && (a.duration || (a.desc && a.desc.trim()))) {
+        days++;
+        mins += parseInt(a.duration) || 0;
+      }
+    });
+    return { label, mins, days };
+  }).filter(a => a.days > 0);
+  const maxActMins = Math.max(...actTotals.map(a => a.mins), 1);
+  const activityBars = actTotals
+    .sort((a, b) => b.mins - a.mins)
+    .map(a => {
+      const pct = Math.max(3, Math.round((a.mins / maxActMins) * 100));
+      return `<div class="bar-row">
+        <span class="bar-label" style="width:56px;font-size:10px">${a.label}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--accent)"></div></div>
+        <span class="bar-val">${a.mins ? fmtDur(a.mins) : a.days + 'd'}</span>
+      </div>`;
+    }).join('');
+
   el.innerHTML = `
     <div class="insight-card">
       <div class="insight-title">🌙 Sleep · avg ${avgSleep}h</div>
       ${sleepBars}
     </div>
+    ${activityBars ? `
+    <div class="insight-card">
+      <div class="insight-title">🥊 Activities · 7-day total</div>
+      ${activityBars}
+    </div>` : ''}
     ${feelingBars ? `
     <div class="insight-card">
       <div class="insight-title">🧠 Feelings · 7-day avg</div>
