@@ -219,6 +219,13 @@
       border-radius: 12px; padding: 12px 14px; cursor: pointer;
       transition: all 0.15s;
     }
+    .med-yesterday-label {
+      font-size: 10px; font-weight: 700; color: var(--warn);
+      text-transform: uppercase; letter-spacing: 0.07em;
+      margin: 12px 0 2px; padding-top: 10px; border-top: 1px solid var(--border);
+    }
+    .med-item.med-yesterday { opacity: 0.85; border-style: dashed; }
+    .med-item.med-yesterday.taken { opacity: 1; border-style: solid; }
     .med-item.taken { border-color: var(--good); background: rgba(74,222,128,0.08); }
     .med-info { display: flex; flex-direction: column; gap: 2px; }
     .med-name { font-size: 15px; font-weight: 500; }
@@ -355,6 +362,20 @@
       display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-top: 10px;
     }
     .history-activities { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .history-stat.tappable { cursor: pointer; }
+    .history-detail {
+      display: none; margin-top: 8px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px;
+    }
+    .history-detail.open { display: block; }
+    .hd-row {
+      display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center;
+      padding: 4px 0;
+    }
+    .hd-row + .hd-row { border-top: 1px solid var(--border); }
+    .hd-name { font-size: 12px; font-weight: 600; color: var(--text); }
+    .hd-meta { font-size: 11px; color: var(--muted); }
+    .hd-val  { font-size: 12px; font-weight: 700; color: var(--accent); }
     .ha-row {
       display: grid; grid-template-columns: 76px 1fr auto; gap: 8px; align-items: center;
       background: var(--surface); border-radius: 6px; padding: 6px 8px;
@@ -487,35 +508,7 @@
     .activity-duration:focus { border-color: var(--accent); }
     .activity-duration.has-value { border-color: var(--accent2); color: var(--accent2); font-weight: 700; }
 
-    /* MANTRA */
-    .mantra-box {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 16px; margin-top: 10px;
-    }
-    .mantra-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .mantra-title {
-      font-size: 13px; font-weight: 700; letter-spacing: 0.06em;
-      text-transform: uppercase; color: var(--accent2);
-    }
-    .mantra-week {
-      font-size: 11px; color: var(--muted);
-    }
-    .mantra-prompt {
-      font-size: 12px; color: var(--warn);
-      background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.3);
-      border-radius: 8px; padding: 8px 10px; margin-bottom: 10px;
-    }
-    .mantra-textarea {
-      width: 100%; background: transparent; border: none;
-      padding: 0; color: var(--accent2);
-      font-family: var(--font-sans); font-size: 16px; font-style: normal;
-      font-weight: 500; line-height: 1.6; resize: none; outline: none;
-      min-height: 60px;
-    }
-    .mantra-textarea::placeholder { color: rgba(167,139,250,0.4); }
+
 
     /* ACCORDION */
     .accordion-header {
@@ -831,18 +824,18 @@
 
   </div>
 
-  <!-- ACTIVITIES -->
-  <div class="accordion-header" onclick="toggleAccordion('activities')" id="acc-activities">
+  <!-- WORK (activities) -->
+  <div class="accordion-header" onclick="toggleAccordion('activities-work')" id="acc-activities-work">
     <div class="accordion-header-left">
-      <span class="accordion-icon">🥊</span>
+      <span class="accordion-icon">💼</span>
       <div>
-        <div class="accordion-title">Activities</div>
-        <div class="accordion-subtitle" id="acc-activities-sub">Tap to record</div>
+        <div class="accordion-title">Work</div>
+        <div class="accordion-subtitle" id="acc-activities-work-sub">Tap to record</div>
       </div>
     </div>
     <span class="accordion-chevron">▼</span>
   </div>
-  <div class="accordion-body" id="body-activities">
+  <div class="accordion-body" id="body-activities-work">
 
     <div style="display:grid;grid-template-columns:90px 1fr 110px;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:2px;">
       <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;">Activity</span>
@@ -850,91 +843,75 @@
       <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;text-align:center;">Duration</span>
     </div>
 
-    <div class="activity-row">
-      <span class="activity-label">Work</span>
-      <input type="text" class="activity-desc" id="act-desc-0" placeholder="What did you do?" oninput="updateActivitiesSubtitle()" />
-      <select class="activity-duration" id="act-dur-0" onchange="updateActivitiesSubtitle(); this.classList.toggle('has-value', !!this.value)">
-        <option value="">Duration</option>
-        <option value="10">10 min</option><option value="20">20 min</option><option value="30">30 min</option>
-        <option value="45">45 min</option><option value="60">1 hr</option><option value="90">1.5 hrs</option>
-        <option value="120">2 hrs</option><option value="180">3 hrs</option><option value="240">4 hrs</option>
-        <option value="300">5 hrs</option><option value="360">6 hrs</option><option value="420">7 hrs</option>
-        <option value="480">8 hrs</option><option value="540">9 hrs</option><option value="600">10 hrs</option>
-        <option value="660">11 hrs</option><option value="720">12 hrs</option>
-      </select>
-    </div>
-
-    <div class="activity-row">
-      <span class="activity-label">Exercise</span>
-      <input type="text" class="activity-desc" id="act-desc-1" placeholder="e.g. Run, gym, swim" oninput="updateActivitiesSubtitle()" />
-      <select class="activity-duration" id="act-dur-1" onchange="updateActivitiesSubtitle(); this.classList.toggle('has-value', !!this.value)">
-        <option value="">Duration</option>
-        <option value="10">10 min</option><option value="20">20 min</option><option value="30">30 min</option>
-        <option value="45">45 min</option><option value="60">1 hr</option><option value="90">1.5 hrs</option>
-        <option value="120">2 hrs</option><option value="180">3 hrs</option><option value="240">4 hrs</option>
-        <option value="300">5 hrs</option><option value="360">6 hrs</option><option value="420">7 hrs</option>
-        <option value="480">8 hrs</option><option value="540">9 hrs</option><option value="600">10 hrs</option>
-        <option value="660">11 hrs</option><option value="720">12 hrs</option>
-      </select>
-    </div>
-
-    <div class="activity-row">
-      <span class="activity-label">Reading</span>
-      <input type="text" class="activity-desc" id="act-desc-2" placeholder="What did you read?" oninput="updateActivitiesSubtitle()" />
-      <select class="activity-duration" id="act-dur-2" onchange="updateActivitiesSubtitle(); this.classList.toggle('has-value', !!this.value)">
-        <option value="">Duration</option>
-        <option value="10">10 min</option><option value="20">20 min</option><option value="30">30 min</option>
-        <option value="45">45 min</option><option value="60">1 hr</option><option value="90">1.5 hrs</option>
-        <option value="120">2 hrs</option><option value="180">3 hrs</option><option value="240">4 hrs</option>
-        <option value="300">5 hrs</option><option value="360">6 hrs</option><option value="420">7 hrs</option>
-        <option value="480">8 hrs</option><option value="540">9 hrs</option><option value="600">10 hrs</option>
-        <option value="660">11 hrs</option><option value="720">12 hrs</option>
-      </select>
-    </div>
-
-    <div class="activity-row">
-      <span class="activity-label">Housework</span>
-      <input type="text" class="activity-desc" id="act-desc-3" placeholder="e.g. Cleaning, cooking" oninput="updateActivitiesSubtitle()" />
-      <select class="activity-duration" id="act-dur-3" onchange="updateActivitiesSubtitle(); this.classList.toggle('has-value', !!this.value)">
-        <option value="">Duration</option>
-        <option value="10">10 min</option><option value="20">20 min</option><option value="30">30 min</option>
-        <option value="45">45 min</option><option value="60">1 hr</option><option value="90">1.5 hrs</option>
-        <option value="120">2 hrs</option><option value="180">3 hrs</option><option value="240">4 hrs</option>
-        <option value="300">5 hrs</option><option value="360">6 hrs</option><option value="420">7 hrs</option>
-        <option value="480">8 hrs</option><option value="540">9 hrs</option><option value="600">10 hrs</option>
-        <option value="660">11 hrs</option><option value="720">12 hrs</option>
-      </select>
-    </div>
-
-    <div class="activity-row">
-      <span class="activity-label">DIY</span>
-      <input type="text" class="activity-desc" id="act-desc-4" placeholder="What did you make?" oninput="updateActivitiesSubtitle()" />
-      <select class="activity-duration" id="act-dur-4" onchange="updateActivitiesSubtitle(); this.classList.toggle('has-value', !!this.value)">
-        <option value="">Duration</option>
-        <option value="10">10 min</option><option value="20">20 min</option><option value="30">30 min</option>
-        <option value="45">45 min</option><option value="60">1 hr</option><option value="90">1.5 hrs</option>
-        <option value="120">2 hrs</option><option value="180">3 hrs</option><option value="240">4 hrs</option>
-        <option value="300">5 hrs</option><option value="360">6 hrs</option><option value="420">7 hrs</option>
-        <option value="480">8 hrs</option><option value="540">9 hrs</option><option value="600">10 hrs</option>
-        <option value="660">11 hrs</option><option value="720">12 hrs</option>
-      </select>
-    </div>
-
-    <div class="activity-row">
-      <span class="activity-label">Other</span>
-      <input type="text" class="activity-desc" id="act-desc-5" placeholder="Describe activity" oninput="updateActivitiesSubtitle()" />
-      <select class="activity-duration" id="act-dur-5" onchange="updateActivitiesSubtitle(); this.classList.toggle('has-value', !!this.value)">
-        <option value="">Duration</option>
-        <option value="10">10 min</option><option value="20">20 min</option><option value="30">30 min</option>
-        <option value="45">45 min</option><option value="60">1 hr</option><option value="90">1.5 hrs</option>
-        <option value="120">2 hrs</option><option value="180">3 hrs</option><option value="240">4 hrs</option>
-        <option value="300">5 hrs</option><option value="360">6 hrs</option><option value="420">7 hrs</option>
-        <option value="480">8 hrs</option><option value="540">9 hrs</option><option value="600">10 hrs</option>
-        <option value="660">11 hrs</option><option value="720">12 hrs</option>
-      </select>
-    </div>
-
+    <div id="activityRows-work"></div>
   </div>
+
+  <!-- ADMIN (activities) -->
+  <div class="accordion-header" onclick="toggleAccordion('activities-admin')" id="acc-activities-admin">
+    <div class="accordion-header-left">
+      <span class="accordion-icon">📋</span>
+      <div>
+        <div class="accordion-title">Admin</div>
+        <div class="accordion-subtitle" id="acc-activities-admin-sub">Tap to record</div>
+      </div>
+    </div>
+    <span class="accordion-chevron">▼</span>
+  </div>
+  <div class="accordion-body" id="body-activities-admin">
+
+    <div style="display:grid;grid-template-columns:90px 1fr 110px;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:2px;">
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;">Activity</span>
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;text-align:center;">Description</span>
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;text-align:center;">Duration</span>
+    </div>
+
+    <div id="activityRows-admin"></div>
+  </div>
+
+  <!-- HOME (activities) -->
+  <div class="accordion-header" onclick="toggleAccordion('activities-home')" id="acc-activities-home">
+    <div class="accordion-header-left">
+      <span class="accordion-icon">🏠</span>
+      <div>
+        <div class="accordion-title">Home</div>
+        <div class="accordion-subtitle" id="acc-activities-home-sub">Tap to record</div>
+      </div>
+    </div>
+    <span class="accordion-chevron">▼</span>
+  </div>
+  <div class="accordion-body" id="body-activities-home">
+
+    <div style="display:grid;grid-template-columns:90px 1fr 110px;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:2px;">
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;">Activity</span>
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;text-align:center;">Description</span>
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;text-align:center;">Duration</span>
+    </div>
+
+    <div id="activityRows-home"></div>
+  </div>
+
+  <!-- MIND (activities) -->
+  <div class="accordion-header" onclick="toggleAccordion('activities-mind')" id="acc-activities-mind">
+    <div class="accordion-header-left">
+      <span class="accordion-icon">🧘</span>
+      <div>
+        <div class="accordion-title">Mind</div>
+        <div class="accordion-subtitle" id="acc-activities-mind-sub">Tap to record</div>
+      </div>
+    </div>
+    <span class="accordion-chevron">▼</span>
+  </div>
+  <div class="accordion-body" id="body-activities-mind">
+
+    <div style="display:grid;grid-template-columns:90px 1fr 110px;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:2px;">
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;">Activity</span>
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;text-align:center;">Description</span>
+      <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;text-align:center;">Duration</span>
+    </div>
+
+    <div id="activityRows-mind"></div>
+  </div>
+
 
   <!-- FEELINGS -->
   <div class="accordion-header" onclick="toggleAccordion('feelings')" id="acc-feelings">
@@ -966,16 +943,7 @@
     <textarea class="notes-area" id="notesArea" placeholder="Anything worth noting today…" rows="4" oninput="autoSave()"></textarea>
   </div>
 
-  <!-- MANTRA -->
-  <div class="mantra-box" id="mantraBox">
-    <div class="mantra-header">
-      <span class="mantra-title">✦ Mantra</span>
-    </div>
-    <div class="mantra-prompt" id="mantraPrompt" style="display:none">
-      📝 It's Monday — time to set your mantra for the week.
-    </div>
-    <textarea class="mantra-textarea" id="mantraText" placeholder="Complete this app" oninput="saveMantra()"></textarea>
-  </div>
+
 
   <div id="autoSaveIndicator" style="text-align:center;font-size:11px;color:var(--muted);padding:8px 0;opacity:0;transition:opacity 0.4s;">✓ Saved</div>
 </div>
@@ -1015,7 +983,7 @@
   </div>
 
   <div style="text-align:center;margin-top:30px;font-size:12px;color:var(--muted)">
-    MFR v1.2 · Data stored locally on this device
+    MFR v1.7 · Data stored locally on this device
   </div>
 </div>
 
@@ -1146,7 +1114,6 @@ function init() {
   updateStreak();
   updateAccordionSubtitles();
   renderFeelingsCard();
-  initMantra();
 
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
@@ -1213,6 +1180,7 @@ function loadEntry(e) {
   if (state.sleepQuality) selectQuality(state.sleepQuality);
   document.getElementById('notesArea').value = e.notes || '';
   loadDrinkState();
+  renderActivityRows();
   loadActivitiesState();
 }
 
@@ -1521,8 +1489,48 @@ function loadDrinkState() {
 // ─────────────────────────────────────────────
 //  ACTIVITIES
 // ─────────────────────────────────────────────
-const ACTIVITY_COUNT  = 6;
-const ACTIVITY_LABELS = ['Work', 'Exercise', 'Reading', 'Housework', 'DIY', 'Other'];
+// Storage indices are permanent — never reorder these. Indices 0–5 are the
+// original six (incl. retired 'Other'); 6–10 were added later. Existing
+// history keeps its meaning because entries store activities by index.
+const ACTIVITY_COUNT  = 11;
+const ACTIVITY_LABELS = ['Work', 'Exercise', 'Reading', 'Housework', 'DIY', 'Other',
+                         'Budgeting', 'Strategy', 'Cooking', 'Shopping', 'Meditation'];
+// The four Today-page cards and which activity indices belong to each:
+const ACTIVITY_GROUPS = [
+  { key: 'work',  idx: [0] },              // Work
+  { key: 'admin', idx: [7, 6] },           // Strategy, Budgeting
+  { key: 'home',  idx: [3, 9, 4, 8] },     // Housework, Shopping, DIY, Cooking
+  { key: 'mind',  idx: [1, 2, 10, 5] },    // Exercise, Reading, Meditation, Other
+];
+
+const ACTIVITY_PLACEHOLDERS = {
+  0: 'What did you do?', 1: 'e.g. Run, gym, swim', 2: 'What did you read?',
+  3: 'e.g. Cleaning, laundry', 4: 'What did you work on?', 6: 'e.g. Bills, accounts',
+  7: 'e.g. Plans, goals', 8: 'What did you cook?', 9: 'e.g. Groceries, errands',
+  10: 'e.g. Breathing, mindfulness', 5: 'Describe activity'
+};
+
+const DURATION_OPTS = [
+  ['10','10 min'],['20','20 min'],['30','30 min'],['45','45 min'],['60','1 hr'],
+  ['90','1.5 hrs'],['120','2 hrs'],['180','3 hrs'],['240','4 hrs'],['300','5 hrs'],
+  ['360','6 hrs'],['420','7 hrs'],['480','8 hrs'],['540','9 hrs'],['600','10 hrs'],
+  ['660','11 hrs'],['720','12 hrs']
+];
+
+function renderActivityRows() {
+  const opts = '<option value="">Duration</option>' +
+    DURATION_OPTS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+  ACTIVITY_GROUPS.forEach(g => {
+    const wrap = document.getElementById('activityRows-' + g.key);
+    if (!wrap) return;
+    wrap.innerHTML = g.idx.map(i => `
+    <div class="activity-row">
+      <span class="activity-label">${ACTIVITY_LABELS[i]}</span>
+      <input type="text" class="activity-desc" id="act-desc-${i}" placeholder="${ACTIVITY_PLACEHOLDERS[i] || 'What did you do?'}" oninput="updateActivitiesSubtitle()" />
+      <select class="activity-duration" id="act-dur-${i}" onchange="updateActivitiesSubtitle(); this.classList.toggle('has-value', !!this.value)">${opts}</select>
+    </div>`).join('');
+  });
+}
 
 // format minutes as "45m" / "1.5h" / "8h"
 function fmtDur(mins) {
@@ -1536,16 +1544,22 @@ function fmtDur(mins) {
 function updateActivitiesSubtitle() {
   if (!state.activities) state.activities = [];
   for (let i = 0; i < ACTIVITY_COUNT; i++) {
-    state.activities[i] = {
-      desc:     document.getElementById('act-desc-' + i)?.value || '',
-      duration: document.getElementById('act-dur-' + i)?.value || ''
-    };
+    const descEl = document.getElementById('act-desc-' + i);
+    const durEl  = document.getElementById('act-dur-' + i);
+    if (descEl || durEl) {
+      state.activities[i] = { desc: descEl?.value || '', duration: durEl?.value || '' };
+    } else {
+      // no row on screen for this index (e.g. retired 'Other') — keep stored value
+      state.activities[i] = state.activities[i] || { desc: '', duration: '' };
+    }
   }
-  const active = state.activities
-    .map((a, i) => a.duration ? ACTIVITY_LABELS[i] : null)
-    .filter(Boolean);
-  const sub = document.getElementById('acc-activities-sub');
-  if (sub) sub.textContent = active.length > 0 ? active.join(' · ') : 'Tap to record';
+  ACTIVITY_GROUPS.forEach(g => {
+    const active = g.idx
+      .filter(i => state.activities[i] && state.activities[i].duration)
+      .map(i => ACTIVITY_LABELS[i]);
+    const sub = document.getElementById('acc-activities-' + g.key + '-sub');
+    if (sub) sub.textContent = active.length > 0 ? active.join(' · ') : 'Tap to record';
+  });
   autoSave();
 }
 
@@ -1582,6 +1596,47 @@ function renderMedList() {
       <div class="med-check">${taken ? '✓' : ''}</div>`;
     list.appendChild(item);
   });
+
+  // Morning catch-up: until 12 noon, yesterday's untaken meds can still be ticked off
+  if (new Date().getHours() < 12) {
+    const yKey    = toDateStr(new Date(Date.now() - 86400000));
+    const yEntry  = getData().find(e => e.date === yKey);
+    if (yEntry) {
+      const yMeds    = yEntry.meds || {};
+      const untaken  = meds.some(m => !yMeds[m.id]);
+      if (untaken) {
+        const divider = document.createElement('div');
+        divider.className = 'med-yesterday-label';
+        divider.textContent = 'Yesterday · catch-up until 12pm';
+        list.appendChild(divider);
+        meds.forEach(med => {
+          const taken = yMeds[med.id] || false;
+          const item  = document.createElement('div');
+          item.className = 'med-item med-yesterday' + (taken ? ' taken' : '');
+          item.onclick = () => toggleMedYesterday(med.id);
+          item.innerHTML = `
+            <div class="med-info">
+              <span class="med-name">${med.name}</span>
+              <span class="med-dose">${med.dose}</span>
+            </div>
+            <div class="med-check">${taken ? '✓' : ''}</div>`;
+          list.appendChild(item);
+        });
+      }
+    }
+  }
+}
+
+function toggleMedYesterday(id) {
+  const yKey    = toDateStr(new Date(Date.now() - 86400000));
+  const entries = getData();
+  const idx     = entries.findIndex(e => e.date === yKey);
+  if (idx < 0) return;
+  entries[idx].meds = entries[idx].meds || {};
+  entries[idx].meds[id] = !entries[idx].meds[id];
+  localStorage.setItem('mfr_entries', JSON.stringify(entries));
+  renderMedList();
+  renderHistory();
 }
 
 function toggleMed(id) {
@@ -1690,51 +1745,7 @@ function saveFeelngName() {
 // ─────────────────────────────────────────────
 //  SAVE
 // ─────────────────────────────────────────────
-// ─────────────────────────────────────────────
-//  MANTRA
-// ─────────────────────────────────────────────
-const FIRST_MANTRA_MONDAY = '2026-06-16'; // Monday next week
-const FIRST_MANTRA_TEXT   = 'Complete this app';
-const THIS_WEEK_MANTRA    = 'Complete this app';
 
-function initMantra() {
-  const stored   = JSON.parse(localStorage.getItem('mfr_mantra') || '{}');
-  const now      = new Date();
-  const monday   = getMondayStr(now);
-  const isMonday = now.getDay() === 1;
-
-  // Seed this week and next Monday's mantra if not already set
-  const thisMonday = getMondayStr(now);
-  if (!stored[thisMonday])        stored[thisMonday]        = THIS_WEEK_MANTRA;
-  if (!stored[FIRST_MANTRA_MONDAY]) stored[FIRST_MANTRA_MONDAY] = FIRST_MANTRA_TEXT;
-  localStorage.setItem('mfr_mantra', JSON.stringify(stored));
-
-  // Load this week's mantra
-  document.getElementById('mantraText').value = stored[monday] || THIS_WEEK_MANTRA;
-
-  // Show Monday prompt every Monday from first mantra Monday onwards,
-  // only if no mantra has been written yet for this week
-  const isActive = monday >= FIRST_MANTRA_MONDAY;
-  if (isMonday && isActive && !stored[monday]) {
-    document.getElementById('mantraPrompt').style.display = 'block';
-  }
-}
-
-function getMondayStr(date) {
-  const d   = new Date(date);
-  const day = d.getDay();
-  const diff = (day === 0 ? -6 : 1 - day);
-  d.setDate(d.getDate() + diff);
-  return toDateStr(d);
-}
-
-function saveMantra() {
-  const stored = JSON.parse(localStorage.getItem('mfr_mantra') || '{}');
-  const monday = getMondayStr(new Date());
-  stored[monday] = document.getElementById('mantraText').value;
-  localStorage.setItem('mfr_mantra', JSON.stringify(stored));
-  document.getElementById('mantraPrompt').style.display = 'none';
-}
 // ─────────────────────────────────────────────
 let autoSaveTimer = null;
 function autoSave() {
@@ -1791,6 +1802,11 @@ function updateStreak() {
 // ─────────────────────────────────────────────
 //  HISTORY
 // ─────────────────────────────────────────────
+function toggleHistDetail(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
 function renderHistory() {
   const entries = getData();
   const el      = document.getElementById('historyList');
@@ -1799,12 +1815,31 @@ function renderHistory() {
     return;
   }
   const names = getFeelingNames();
-  el.innerHTML = entries.map(e => {
+  el.innerHTML = entries.map((e, idx) => {
     const d       = new Date(e.date + 'T12:00:00');
     const dateStr = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
     const takenCount = Object.values(e.meds || {}).filter(Boolean).length;
     const totalMeds  = getMeds().length;
     const scoreColor = s => s <= 3 ? '#f87171' : s <= 5 ? '#fb923c' : s <= 7 ? '#facc15' : '#4ade80';
+
+    // Alcohol detail — the drinks recorded that day
+    const drinks = (e.drinks || []).filter(dr => dr && (dr.name || (parseFloat(dr.abv) && parseFloat(dr.qty))));
+    const alcoholDetail = drinks.length ? drinks.map((dr, i) => {
+      const units = ((parseFloat(dr.abv) || 0) * (parseFloat(dr.qty) || 0)).toFixed(1);
+      return `<div class="hd-row">
+        <span class="hd-name">${dr.name ? dr.name : 'Drink ' + (i + 1)}</span>
+        <span class="hd-meta">${dr.abv ? dr.abv + '%' : ''}${dr.abv && dr.qty ? ' × ' : ''}${dr.qty ? dr.qty + 'L' : ''}</span>
+        <span class="hd-val">${units > 0 ? units + 'u' : ''}</span>
+      </div>`;
+    }).join('') : `<div class="hd-row"><span class="hd-name" style="color:var(--muted)">No drinks recorded</span></div>`;
+
+    // Sleep detail — the quality note recorded that day
+    const QUALITY_LABELS = { poor: ['Poor', 'var(--bad)'], ok: ['Ok', 'var(--warn)'], good: ['Good', 'var(--good)'], excellent: ['Excellent', 'var(--good)'] };
+    const q = QUALITY_LABELS[e.sleepQuality];
+    const sleepDetail = `<div class="hd-row">
+      <span class="hd-name">⭐ Sleep quality</span>
+      <span class="hd-val" style="color:${q ? q[1] : 'var(--muted)'}">${q ? q[0] : 'Not recorded'}</span>
+    </div>`;
 
     // Feelings mini grid — only show scored ones
     const scored = Object.entries(e.feelings || {});
@@ -1839,20 +1874,22 @@ function renderHistory() {
       <div class="history-item">
         <div class="history-date">${dateStr}</div>
         <div class="history-stats">
-          <div class="history-stat">
+          <div class="history-stat tappable" onclick="toggleHistDetail('hd-sleep-${idx}')">
             <span class="hval" style="color:${sleepColor}">${sleepHrs}h</span>
-            <span class="hlbl">Sleep</span>
+            <span class="hlbl">Sleep ▾</span>
             <span style="font-size:9px;color:var(--muted)">${bedLabel} → ${wakeLabel}</span>
           </div>
-          <div class="history-stat">
+          <div class="history-stat tappable" onclick="toggleHistDetail('hd-alc-${idx}')">
             <span class="hval" style="color:${e.units > 2 ? 'var(--warn)' : 'var(--good)'}">${e.units}u</span>
-            <span class="hlbl">Alcohol</span>
+            <span class="hlbl">Alcohol ▾</span>
           </div>
           <div class="history-stat">
             <span class="hval" style="color:var(--good)">${totalMeds > 0 ? takenCount+'/'+totalMeds : '—'}</span>
             <span class="hlbl">Meds</span>
           </div>
         </div>
+        <div class="history-detail" id="hd-sleep-${idx}">${sleepDetail}</div>
+        <div class="history-detail" id="hd-alc-${idx}">${alcoholDetail}</div>
         ${activitiesHTML}
         ${feelingsHTML}
         ${e.notes ? `<div class="history-notes-text">"${e.notes.substring(0,100)}${e.notes.length > 100 ? '…' : ''}"</div>` : ''}
